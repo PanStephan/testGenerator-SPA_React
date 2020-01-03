@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import Layout from './hoc/Layout/Layout'
 import {Route, Switch, Redirect, withRouter} from 'react-router-dom'
 import Quiz from './containers/Quiz/Quiz'
@@ -8,14 +8,13 @@ import Auth from './containers/Auth/Auth'
 import QuizCreator from './containers/QuizCreator/QuizCreator'
 import {connect} from 'react-redux'
 import Logout from './components/Logout/Logout'
+import {useEffect} from 'react'
 
-class App extends Component {
+const App = (props) => {
 
-  componentDidMount() {
-    this.props.autoLogin()
-  }
+  const{autoLogin, isAuthenticated} = props
 
-  render() {
+  useEffect(() => autoLogin())
 
     let routes = (
       <Switch>
@@ -26,7 +25,7 @@ class App extends Component {
       </Switch>
     )
 
-      if(this.props.isAuthenticated) {
+      if(isAuthenticated) {
         routes = (
           <Switch>
             <Route path="/quiz-creator" component={QuizCreator} />
@@ -43,7 +42,6 @@ class App extends Component {
         {routes}
       </Layout>
     )
-  }
 }
 
 function mapStateToProps(state) {

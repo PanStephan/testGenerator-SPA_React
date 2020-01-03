@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {useState} from 'react'
 import classes from './QuizCreator.css'
 import Button from '../../components/UI/Button/Button'
 import Input from '../../components/UI/Input/Input'
@@ -29,81 +29,77 @@ function createFormControls() {
   }
 }
 
-class QuizCreator extends Component {
+const QuizCreator = (props) => {
 
-  state = {
-    rightAnswerId: 1,
-    isFormValid: false,
-    formControls: createFormControls()
+  const{quiz, createQuizQuestion, finishCreateQuiz} = props
+
+  const[rightAnswerId, setRightAnswerId] = useState(1)
+  const[isFormValid, setIsFormValid] = useState(false)
+  const[formControls, setFormControls] = useState(createFormControls())
+
+  const clearStates = () => {
+    setRightAnswerId(1)
+    setIsFormValid(false)
+    setFormControls(createFormControls())
   }
 
-  submitHandler = event => {
+  const submitHandler = event => {
     event.preventDefault()
   }
 
-  addQuestionHandler = event => {
+  const addQuestionHandler = () => {
+    const{option1, option2, option3, option4, question} = formControls
     const questionItem = {
-      question: this.state.formControls.question.value,
-      id: this.props.quiz.length+1, 
-      rightAnswerId: this.state.rightAnswerId,
+      question: question.value,
+      id: quiz.length+1, 
+      rightAnswerId,
       answers: [
-        {text: this.state.formControls.option1.value, id: this.state.formControls.option1.id},
-        {text: this.state.formControls.option2.value, id: this.state.formControls.option2.id},
-        {text: this.state.formControls.option3.value, id: this.state.formControls.option3.id},
-        {text: this.state.formControls.option4.value, id: this.state.formControls.option4.id},
+        {text: option1.value, id: option1.id},
+        {text: option2.value, id: option2.id},
+        {text: option3.value, id: option3.id},
+        {text: option4.value, id: option4.id},
       ]
     }
 
-    this.props.createQuizQuestion(questionItem)
-
-    this.setState({
-      rightAnswerId: 1,
-      isFormValid: false,
-      formControls: createFormControls()
-    })
+    createQuizQuestion(questionItem)
+    clearStates()
   }
 
-  createQuizHandler = event => {
-      
-      this.setState({
-        rightAnswerId: 1,
-        isFormValid: false,
-        formControls: createFormControls()
-      })
-
-      this.props.finishCreateQuiz()
-
+  const createQuizHandler = () => {
+    finishCreateQuiz()
+    clearStates()
   }
 
-  changeHandler = (value, controlName) => {
-    const formControls = {...this.state.formControls}
+  const changeHandler = (value, controlName) => {
+    const formControlsState = {...formControls}
     const control = {...formControls[controlName]}
 
     control.touched = true
     control.value = value
     control.valid = validate(control.value, control.validation)
 
-    formControls[controlName] = control
-    this.setState({
-      formControls,
-      isFormValid: validateForm(formControls)
-    })
+    formControlsState[controlName] = control
+
+    setFormControls(formControlsState)
+    setIsFormValid(validateForm(formControlsState))
   }
 
-  renderControls() {
-    return Object.keys(this.state.formControls).map((controlName, index) => {
-      const control = this.state.formControls[controlName]
+
+  const renderControls = () => {
+    return Object.keys(formControls).map((controlName, index) => {
+      const control = formControls[controlName]
+      const{label, value, valid, validation, touched, errorMessage} = control
 
       return (
         <Auxiliary key={controlName + index}>
           <Input
-            label={control.label}
-            value={control.value}
-            valid={control.valid}
-            shouldValidate={!!control.validation}
-            touched={control.touched}
-            errorMessage={control.errorMessage}
-            onChange={event => this.changeHandler(event.target.value, controlName)}
+            label={label}
+            value={value}
+            valid={valid}
+            shouldValidate={!!validation}
+            touched={touched}
+            errorMessage={errorMessage}
+            onChange={event => changeHandler(event.target.value, controlName)}
           />
           { index === 0 ? <hr /> : null }
         </Auxiliary>
@@ -111,17 +107,12 @@ class QuizCreator extends Component {
     })
   }
 
-  selectChangeHandler = event => {
-    this.setState({
-      rightAnswerId: +event.target.value
-    })
-  }
+  const selectChangeHandler = event => {setRightAnswerId(+event.target.value)}
 
-  render() {
     const select = <Select
       label="Выберите правильный ответ"
-      value={this.state.rightAnswerId}
-      onChange={this.selectChangeHandler}
+      value={rightAnswerId}
+      onChange={selectChangeHandler}
       options={[
         {text: 1, value: 1},
         {text: 2, value: 2},
@@ -130,38 +121,38 @@ class QuizCreator extends Component {
       ]}
     />
 
-    return (
-      <div className={classes.QuizCreator}>
-        <div>
-          <h1>Создание теста</h1>
+  return (
+    <div className={classes.QuizCreator}>
+      <div>
+        <h1>Создание теста</h1>
 
-          <form onSubmit={this.submitHandler}>
+        <form onSubmit={submitHandler}>
 
-            { this.renderControls() }
+          { renderControls() }
 
-            { select }
+          { select }
 
-            <Button
-              type="primary"
-              onClick={this.addQuestionHandler}
-              disabled={!this.state.isFormValid}
-            >
-              Добавить вопрос
-            </Button>
+          <Button
+            type="primary"
+            onClick={addQuestionHandler}
+            disabled={!isFormValid}
+          >
+            Добавить вопрос
+          </Button>
 
-            <Button
-              type="success"
-              onClick={this.createQuizHandler}
-              disabled={this.props.quiz.length === 0}
-            >
-              Создать тест
-            </Button>
+          <Button
+            type="success"
+            onClick={createQuizHandler}
+            disabled={quiz.length === 0}
+          >
+            Создать тест
+          </Button>
 
-          </form>
-        </div>
+        </form>
       </div>
-    )
-  }
+    </div>
+  )
+
 }
 
 function mapStateToProps(state) {

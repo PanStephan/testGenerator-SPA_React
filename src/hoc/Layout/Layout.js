@@ -1,52 +1,45 @@
-import React, {Component} from 'react'
+import React, {useState} from 'react'
 import classes from './Layout.css'
 import MenuToggle from '../../components/Navigation/MenuToggle/MenuToggle'
 import Drawer from '../../components/Navigation/Drawer/Drawer'
 import {connect} from 'react-redux'
 
-class Layout extends Component {
+const Layout = (props) => {
 
-  state = {
-    menu: false
+  const{isAuthenticated, children} = props
+
+  const[menu, setMenu] = useState(false)
+
+  const toggleMenuHandler = () => {
+    setMenu(!menu)
   }
 
-  toggleMenuHandler = () => {
-    this.setState({
-      menu: !this.state.menu
-    })
+  const menuCloseHandler = () => {
+    setMenu(false)
   }
 
-  menuCloseHandler = () => {
-    this.setState({
-      menu: false
-    })
-  }
+  return (
+    <div className={classes.Layout}>
 
-  render() {
-    return (
-      <div className={classes.Layout}>
+      <Drawer
+        isAuthenticated={isAuthenticated}
+        isOpen={menu}
+        onClose={menuCloseHandler}
+      />
 
-        <Drawer
-          isAuthenticated={this.props.isAuthenticated}
-          isOpen={this.state.menu}
-          onClose={this.menuCloseHandler}
-        />
+      <MenuToggle
+        onToggle={toggleMenuHandler}
+        isOpen={menu}
+      />
 
-        <MenuToggle
-          onToggle={this.toggleMenuHandler}
-          isOpen={this.state.menu}
-        />
-
-        <main>
-          { this.props.children }
-        </main>
-      </div>
-    )
-  }
+      <main>
+        { children }
+      </main>
+    </div>
+  )
 }
 
 function mapStateToProps(state) {
-  console.log(state)
   return {
     isAuthenticated: !!state.auth.token
   }

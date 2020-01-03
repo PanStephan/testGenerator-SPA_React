@@ -1,18 +1,21 @@
-import React, {Component} from 'react'
+import React, {useEffect} from 'react'
 import classes from './QuizList.css'
 import {NavLink} from 'react-router-dom'
 import Loader from '../../components/UI/Loader/Loader'
 import { connect } from 'react-redux'
 import {fetchQuizes} from '../../store/actions/quiz'
 
-class QuizList extends Component {
+const QuizList = (props) => {
 
-  componentDidMount() {
-    this.props.fetchQuizes()
-  }
+  const{fetchQuizes, quizes, loading} = props
 
-  renderQuizes() {
-    return this.props.quizes.map( quiz => {
+  useEffect(() => {
+    fetchQuizes()
+  }, [])
+
+
+  const renderQuizes = () => {
+    return quizes.map( quiz => {
       return (
         <li
           key={quiz.id}
@@ -25,27 +28,26 @@ class QuizList extends Component {
     })
   }
 
-  render() {
-    return (
-      <div className={classes.QuizList}>
-        <div>
-          <h1>Список тестов</h1>
-          {
-            this.props.loading && this.props.quizes.length !== 0  ? <Loader/> : 
-              <ul>
-                { this.renderQuizes() }
-              </ul>
-          }
-        </div>
-      </div>  
-    )
-  }
+  return (
+    <div className={classes.QuizList}>
+      <div>
+        <h1>Список тестов</h1>
+        {
+          loading && quizes.length !== 0  ? <Loader/> : 
+            <ul>
+              { renderQuizes() }
+            </ul>
+        }
+      </div>
+    </div>  
+  )
 }
 
 function mapStateToProps(state) {
+  const{quizes, loading} = state.quiz
   return {
-    quizes: state.quiz.quizes,
-    loading: state.quiz.loading
+    quizes: quizes,
+    loading: loading
   }
 }
 

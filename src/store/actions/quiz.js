@@ -26,10 +26,10 @@ export function fetchQuizesStart() {
   }
 }
 
-export function fetchQuizesError(e) {
+export function fetchQuizesError(error) {
   return {
     type: FETCH_QUIZES_ERROR,
-    error: e
+    error: error
   }
 }
 

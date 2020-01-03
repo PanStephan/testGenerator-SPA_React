@@ -3,21 +3,22 @@ import classes from './ActiveQuiz.css'
 import AnswersList from './AnswersList/AnswersList'
 
 const ActiveQuiz = props => {
+  const{answerNumber, question, quizLength, state, answers, onAnswerClick} = props
   return (
     <div className={classes.ActiveQuiz}>
       <p className={classes.Question}>
       <span>
-        <strong>{props.answerNumber}.</strong>&nbsp;
-        {props.question}
+        <strong>{answerNumber}.</strong>&nbsp;
+        {question}
       </span>
 
-        <small>{props.answerNumber} из { props.quizLength }</small>
+        <small>{answerNumber} из { quizLength }</small>
       </p>
 
       <AnswersList
-        state={props.state}
-        answers={props.answers}
-        onAnswerClick={props.onAnswerClick}
+        state={state}
+        answers={answers}
+        onAnswerClick={onAnswerClick}
       />
     </div>
   )
