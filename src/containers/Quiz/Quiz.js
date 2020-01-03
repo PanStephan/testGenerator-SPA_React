@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {useState} from 'react'
 import classes from './Quiz.css'
 import ActiveQuiz from '../../components/ActiveQuiz/ActiveQuiz'
 import FinishedQuiz from '../../components/FinishedQuiz/FinishedQuiz'
@@ -6,54 +6,52 @@ import {connect} from 'react-redux'
 import Loader from '../../components/UI/Loader/Loader'
 import {fetchQuizById, quizAnswerClick, retryQuiz} from '../../store/actions/quiz'
 
-class Quiz extends Component {
+const Quiz = (props) => {
 
-  componentWillUnmount() {
-    this.props.retryQuiz()
-  }
+  const{match, fetchQuizById, retryQuiz, loading, results, isFinished, activeQuestion, answerState, quiz, quizAnswerClick} = props
 
-  componentDidMount() {
-    this.props.fetchQuizById(this.props.match.params.id)
-  }
+  useState(() => {
+    fetchQuizById(match.params.id)
+    retryQuiz()
+  }, [quiz])
 
-  render() {
     return (
       <div className={classes.Quiz}>
         <div className={classes.QuizWrapper}>
           <h1>Ответьте на все вопросы</h1>
             {
-            this.props.loading || !this.props.quiz
+            loading || !quiz
             ? <Loader/> 
             : 
-            this.props.isFinished
+            isFinished
             ? <FinishedQuiz
-              results={this.props.results}
-              quiz={this.props.quiz}
-              onRetry={this.props.retryQuiz}
+              results={results}
+              quiz={quiz}
+              onRetry={retryQuiz}
             />
             : <ActiveQuiz
-              answers={this.props.quiz[this.props.activeQuestion].answers}
-              question={this.props.quiz[this.props.activeQuestion].question}
-              onAnswerClick={this.props.quizAnswerClick}
-              quizLength={this.props.quiz.length}
-              answerNumber={this.props.activeQuestion + 1}
-              state={this.props.answerState}
+              answers={quiz[activeQuestion].answers}
+              question={quiz[activeQuestion].question}
+              onAnswerClick={quizAnswerClick}
+              quizLength={quiz.length}
+              answerNumber={activeQuestion + 1}
+              state={answerState}
               />
           }
         </div>
       </div>
     )
-  }
 }
 
 function mapStateToProps(state) {
+  const{loading, results, isFinished, activeQuestion, answerState, quiz} = state.quiz
   return {
-    loading: state.quiz.loading,
-    results: state.quiz.results, 
-    isFinished: state.quiz.isFinished,
-    activeQuestion: state.quiz.activeQuestion,
-    answerState: state.quiz.answerState,
-    quiz: state.quiz.quiz
+    loading,
+    results, 
+    isFinished,
+    activeQuestion,
+    answerState,
+    quiz
   }
 }
 
